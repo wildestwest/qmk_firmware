@@ -26,6 +26,8 @@ enum layers {
     _NUMBERS,
     _MOUSE,
     _UNICODE,
+    _GAMING,
+    _GAMING_NUM,
 };
 
 enum unicode_names {
@@ -83,6 +85,9 @@ const uint32_t unicode_map[] PROGMEM = {
 #define HOME_T RCTL_T(KC_T)
 #define HOME_N LALT_T(KC_N)
 #define HOME_S RGUI_T(KC_S)
+
+const uint16_t PROGMEM gaming_combo[] = {LT(_MOUSE, KC_ESC), UNI_CW, COMBO_END};
+combo_t key_combos[] = {COMBO(gaming_combo, TG(_GAMING))};
 
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     LAYOUT_split_3x6_3(
@@ -175,6 +180,30 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                     _______, _______, _______,              KC_0,    KC_DOT,  LSFT(KC_8)
                                 //`--------------------------'  `--------------------------'
+    ),
+
+    [_GAMING] = LAYOUT_split_3x6_3(
+    //,-----------------------------------------------------.                    ,-----------------------------------------------------.
+        KC_TAB,  KC_G,    KC_Q,    KC_B,    KC_E,    KC_T,                         _______, _______, _______, _______, _______, _______,
+    //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+        KC_Z,    KC_C,    KC_A,    KC_W,    KC_D,    KC_R,                         _______, _______, _______, _______, _______, _______,
+    //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+        KC_LCTL, KC_LSFT, KC_X,    KC_S,    KC_C,    KC_F,                         _______, _______, _______, _______, _______, _______,
+    //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
+                                    KC_LALT, LT(_GAMING_NUM, KC_ESC), KC_SPC,    _______, _______, TG(_GAMING)
+                                //`--------------------------'  `--------------------------'
+    ),
+
+    [_GAMING_NUM] = LAYOUT_split_3x6_3(
+    //,-----------------------------------------------------.                    ,-----------------------------------------------------.
+        _______,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                         _______, _______, _______, _______, _______, _______,
+    //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+        _______, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,                         _______, _______, _______, _______, _______, _______,
+    //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+        _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                        _______, _______, _______, _______, _______, _______,
+    //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
+                                    _______, _______, _______,              _______, _______, _______
+                                //`--------------------------'  `--------------------------'
     )
 };
 
@@ -190,7 +219,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-bool get_custom_auto_shifted_key(uint16_t keycode, keyrecord_t *record) {
+bool get_auto_shifted_key(uint16_t keycode, keyrecord_t *record) {
+    if (layer_state_is(_GAMING) || layer_state_is(_GAMING_NUM))
+        return false;
+
     if (IS_QK_LAYER_TAP(keycode) && QK_LAYER_TAP_GET_TAP_KEYCODE(keycode) == KC_BSPC)
         return false;
 
@@ -199,6 +231,11 @@ bool get_custom_auto_shifted_key(uint16_t keycode, keyrecord_t *record) {
 
     switch (keycode) {
         case QK_MOD_TAP ... QK_MOD_TAP_MAX:
+            return true;
+        case KC_A ... KC_Z:
+        case KC_1 ... KC_0:
+        case KC_TAB:
+        case KC_MINUS ... KC_SLASH:
             return true;
         default:
             return false;
