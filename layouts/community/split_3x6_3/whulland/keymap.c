@@ -40,6 +40,12 @@ const uint32_t unicode_map[] PROGMEM = {
     [THUMB_UP] = 0x1F44D, [SMILE] = 0x1F604, [ROFL] = 0x1F923, [FROWN] = 0x1F641, [THUMB_DN] = 0x1F44E, [PRAY] = 0x1F64F, [PARTY] = 0x1F389, [ROCKET] = 0x1F680, [HEART] = 0x2764, [FIRE] = 0x1F525, [EYES] = 0x1F440, [THINK] = 0x1F914, [BUG] = 0x1F41B, [CHECK] = 0x2705, [CROSS] = 0x274C, [HUNDRED] = 0x1F4AF, [SCREAM] = 0x1F631, [SHRUG] = 0x1F937,
 };
 
+enum custom_keycodes {
+    TMUX_1 = QK_USER,
+    TMUX_2, TMUX_3, TMUX_4, TMUX_5,
+    TMUX_6, TMUX_7, TMUX_8, TMUX_9, TMUX_0,
+};
+
 #define UNI_CW LT(_UNICODE, KC_NO)
 
 // Left-hand home row mods
@@ -101,7 +107,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {[_BASE] = LAYOUT_s
                                                                   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
                                                                   _______, LGUI(KC_1), LGUI(KC_2), LGUI(KC_3), LGUI(KC_4), LGUI(KC_5), LGUI(KC_6), LGUI(KC_7), LGUI(KC_8), LGUI(KC_9), LGUI(KC_0), _______,
                                                                   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-                                                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+                                                                  _______, TMUX_1, TMUX_2, TMUX_3, TMUX_4, TMUX_5, TMUX_6, TMUX_7, TMUX_8, TMUX_9, TMUX_0, _______,
                                                                   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                                                   _______, _______, _______, _______, _______, _______
                                                                   //`--------------------------'  `--------------------------'
@@ -175,6 +181,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             break;
+        case TMUX_1 ... TMUX_0:
+            if (record->event.pressed) {
+                tap_code16(LCTL(KC_B));
+                uint16_t num = (keycode == TMUX_0) ? KC_0 : KC_1 + (keycode - TMUX_1);
+                tap_code(num);
+            }
+            return false;
     }
     return true;
 }
